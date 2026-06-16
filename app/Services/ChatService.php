@@ -27,4 +27,17 @@ class ChatService
 
         return $conversation;
     }
+
+    public function getUserConversations()
+    {
+        return auth()->user()
+            ->conversations()
+            ->with([
+                'users',
+                'latestMessage'
+            ])
+            ->withMax('messages', 'created_at')
+            ->orderByDesc('messages_max_created_at')
+            ->get();
+    }
 }

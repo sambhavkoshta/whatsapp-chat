@@ -5,19 +5,31 @@ namespace App\Http\Controllers\Chat;
 use App\Http\Controllers\Controller;
 use App\Models\Conversation;
 use Illuminate\Http\Request;
+use App\Http\Requests\StoreMessageRequest;
+use App\Services\MessageService;
 
 class MessageController extends Controller
 {
-    public function store(Request $request, Conversation $conversation)
-    {
-        $request->validate([
-            'body' => ['required']
-        ]);
+    public function __construct(
+        protected MessageService $messageService
+    ) {}
 
-        $conversation->messages()->create([
-            'user_id' => auth()->id(),
-            'body' => $request->body
-        ]);
+    public function store(
+        StoreMessageRequest $request,
+        Conversation $conversation
+    ) {
+        abort_unless(
+            $conversation
+                ->users()
+                ->where('users.id', auth()->id())
+                ->exists(),
+            403
+        );
+
+        $this->messageService->sendMessage(
+            $conversation,
+            $request->body
+        );
 
         $otherUser = $conversation
             ->users()

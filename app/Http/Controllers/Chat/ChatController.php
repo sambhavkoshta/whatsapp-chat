@@ -16,14 +16,21 @@ class ChatController extends Controller
 
     public function index()
     {
-        $users = User::where('id', '!=', auth()->id())->get();
+        $conversations = $this->chatService
+            ->getUserConversations();
 
-        return view('chat.index', compact('users'));
+        return view('chat.index', [
+            'conversations' => $conversations,
+            'selectedUser' => null,
+            'conversation' => null,
+            'messages' => collect(),
+        ]);
     }
 
     public function show(User $user)
     {
-        $users = User::where('id', '!=', auth()->id())->get();
+        $conversations = $this->chatService
+            ->getUserConversations();
 
         $conversation = $this->chatService
             ->findOrCreateConversation(auth()->user(), $user);
@@ -35,7 +42,7 @@ class ChatController extends Controller
             ->get();
 
         return view('chat.index', [
-            'users' => $users,
+            'conversations' => $conversations,
             'selectedUser' => $user,
             'conversation' => $conversation,
             'messages' => $messages,
