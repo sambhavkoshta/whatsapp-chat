@@ -10,6 +10,16 @@
 
             @isset($selectedUser)
 
+            <input
+                type="hidden"
+                id="conversation-id"
+                value="{{ $conversation->id }}">
+
+            <input
+                type="hidden"
+                id="current-user-id"
+                value="{{ auth()->id() }}">
+                
             <x-chat.header
                 :selected-user="$selectedUser" />
 

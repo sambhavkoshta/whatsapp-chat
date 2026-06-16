@@ -3,7 +3,7 @@
 ])
 
 <!-- Messages Area -->
-<div class="h-[75vh] overflow-y-auto p-4 space-y-4 bg-gray-100">
+<div id="messages" class="h-[75vh] overflow-y-auto p-4 space-y-4 bg-gray-100">
 
     @forelse ($messages as $message)
 

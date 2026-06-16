@@ -7,6 +7,7 @@ use App\Models\Conversation;
 use Illuminate\Http\Request;
 use App\Http\Requests\StoreMessageRequest;
 use App\Services\MessageService;
+use App\Events\MessageSent;
 
 class MessageController extends Controller
 {
@@ -26,16 +27,18 @@ class MessageController extends Controller
             403
         );
 
-        $this->messageService->sendMessage(
+        $message = $this->messageService->sendMessage(
             $conversation,
             $request->body
         );
 
-        $otherUser = $conversation
-            ->users()
-            ->where('users.id', '!=', auth()->id())
-            ->first();
+        broadcast(new MessageSent($message))->toOthers();
 
-        return redirect()->route('chat.show', $otherUser);
+        return response()->json([
+            'id' => $message->id,
+            'body' => $message->body,
+            'user_id' => $message->user_id,
+            'created_at' => $message->created_at->format('h:i A'),
+        ]);
     }
 }

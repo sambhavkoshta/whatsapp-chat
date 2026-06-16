@@ -8,9 +8,11 @@ class MessageService
 {
     public function sendMessage(Conversation $conversation, string $body)
     {
-        return $conversation->messages()->create([
+        $message = $conversation->messages()->create([
             'user_id' => auth()->id(),
             'body' => $body
         ]);
+
+        return $message;
     }
 }

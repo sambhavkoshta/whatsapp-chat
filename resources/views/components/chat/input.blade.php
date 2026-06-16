@@ -5,12 +5,14 @@
 <div class="bg-white p-4 border-t">
 
     <form
+        id="message-form"
         action="{{ route('messages.store', $conversation) }}"
         method="POST"
         class="flex gap-3">
         @csrf
 
         <input
+            id="message-input"
             type="text"
             name="body"
             required
