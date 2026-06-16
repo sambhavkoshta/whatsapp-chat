@@ -3,6 +3,7 @@
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Chat\ChatController;
+use App\Http\Controllers\Chat\MessageController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -18,6 +19,9 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
     Route::get('/chat', [ChatController::class, 'index'])->name('chat.index');
+    Route::get('/chat/{user}', [ChatController::class, 'show'])->name('chat.show');
+
+    Route::post('/conversations/{conversation}/messages',[MessageController::class, 'store'])->name('messages.store');
 });
 
 require __DIR__.'/auth.php';
