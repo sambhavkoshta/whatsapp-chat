@@ -29,6 +29,7 @@ class ChatController extends Controller
 
     public function show(User $user)
     {
+        $selectedUser = User::findOrFail($user->id);
         $conversations = $this->chatService
             ->getUserConversations();
 
@@ -43,7 +44,7 @@ class ChatController extends Controller
 
         return view('chat.index', [
             'conversations' => $conversations,
-            'selectedUser' => $user,
+            'selectedUser' => $selectedUser,
             'conversation' => $conversation,
             'messages' => $messages,
         ]);

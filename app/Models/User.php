@@ -22,6 +22,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'last_seen_at',
     ];
 
     /**
@@ -44,6 +45,7 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'last_seen_at' => 'datetime',   
         ];
     }
 
@@ -56,4 +58,12 @@ class User extends Authenticatable
     {
         return $this->hasMany(Message::class);
     }
+
+    public function isOnline()
+    {
+        return cache()->has(
+            'user-is-online-' . $this->id
+        );
+    }
+
 }

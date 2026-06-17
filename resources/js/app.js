@@ -7,12 +7,18 @@ window.Alpine = Alpine;
 
 Alpine.start();
 
+let typingTimer;
+
+let onlineUsers = [];
+
 const conversationId = document.getElementById("conversation-id");
 
 if (conversationId) {
-    window.Echo.private(`conversation.${conversationId.value}`).listen(
-        "MessageSent",
-        (e) => {
+    window.Echo.private(`conversation.${conversationId.value}`)
+        .listen("MessageSent", (e) => {
+
+            console.log("EVENT RECEIVED");
+
             const messagesDiv = document.getElementById("messages");
 
             const currentUserId =
@@ -42,8 +48,33 @@ if (conversationId) {
             messagesDiv.insertAdjacentHTML("beforeend", html);
 
             messagesDiv.scrollTop = messagesDiv.scrollHeight;
-        },
-    );
+        })
+        .listenForWhisper("typing", (e) => {
+            const typingIndicator = document.getElementById("typing-indicator");
+
+            typingIndicator.innerText = `${e.name} is typing...`;
+
+            setTimeout(() => {
+                typingIndicator.innerText = "";
+            }, 1000);
+        });
+    
+    window.Echo.join(`presence.conversation.${conversationId.value}`)
+        .here((users) => {
+            onlineUsers = users;
+
+            updateStatus();
+        })
+        .joining((user) => {
+            onlineUsers.push(user);
+
+            updateStatus();
+        })
+        .leaving((user) => {
+            onlineUsers = onlineUsers.filter((u) => u.id !== user.id);
+
+            updateStatus();
+        });
 }
 
 const form = document.getElementById("message-form");
@@ -76,37 +107,59 @@ if (form) {
             }),
         });
 
-        const message = await response.json();
-
-        const messagesDiv = document.getElementById("messages");
-
-        const html = `
-            <div class="flex justify-end">
-
-                <div class="
-                    max-w-sm px-4 py-2 rounded-lg shadow
-                    bg-green-500 text-white
-                ">
-
-                    <p>${message.body}</p>
-
-                    <div class="text-xs mt-1 opacity-70">
-                        ${message.created_at}
-                    </div>
-
-                </div>
-
-            </div>
-        `;
-
-        messagesDiv.insertAdjacentHTML("beforeend", html);
-
-        messagesDiv.scrollTop = messagesDiv.scrollHeight;
-
-        input.value = "";
+        await response.json();
 
         input.value = "";
     });
 }
 
+function updateStatus() {
+    const status = document.getElementById("user-status");
 
+    if (!status) return;
+
+    const currentUserId = Number(
+        document.getElementById("current-user-id").value,
+    );
+
+    const otherUserOnline = onlineUsers.some(
+        (user) => user.id !== currentUserId,
+    );
+
+    if (otherUserOnline) {
+        status.innerText = "🟢 Online";
+    } else {
+        const lastSeen = status.dataset.lastSeen;
+
+        status.innerText = lastSeen ? `Last seen ${lastSeen}` : "Offline";
+    }
+}
+
+function scrollToBottom() {
+    const messagesDiv = document.getElementById("messages");
+
+    if (!messagesDiv) return;
+
+    messagesDiv.scrollTo({
+        top: messagesDiv.scrollHeight,
+        behavior: "smooth",
+    });
+}
+
+scrollToBottom();
+
+const messageInput = document.getElementById("message-input");
+if (conversationId && messageInput) {
+    messageInput.addEventListener("input", () => {
+        clearTimeout(typingTimer);
+
+        typingTimer = setTimeout(() => {
+            window.Echo.private(`conversation.${conversationId.value}`).whisper(
+                "typing",
+                {
+                    name: document.getElementById("current-user-name").value,
+                },
+            );
+        }, 300);
+    });
+}

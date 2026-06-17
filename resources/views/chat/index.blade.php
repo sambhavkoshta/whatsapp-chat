@@ -19,6 +19,11 @@
                 type="hidden"
                 id="current-user-id"
                 value="{{ auth()->id() }}">
+
+            <input
+                type="hidden"
+                id="current-user-name"
+                value="{{ auth()->user()->name }}">
                 
             <x-chat.header
                 :selected-user="$selectedUser" />
