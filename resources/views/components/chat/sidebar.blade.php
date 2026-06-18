@@ -11,11 +11,32 @@
          @foreach ($conversations as $chat)
 
          @php
-         $otherUser = $chat->users->firstWhere('id', '!=', auth()->id());
+
+         if ($chat->isGroup()) {
+
+         $title = $chat->name;
+
+         } else {
+
+         $otherUser = $chat->users
+         ->firstWhere(
+         'id',
+         '!=',
+         auth()->id()
+         );
+
+         $title = $otherUser->name;
+
+         }
+
          @endphp
 
+         <!-- @php
+         $otherUser = $chat->users->firstWhere('id', '!=', auth()->id());
+         @endphp -->
+
          <a
-             href="{{ route('chat.show', $otherUser) }}"
+             href="{{ route('conversations.show', $chat) }}"
              class="flex items-center gap-3 p-4 border-b hover:bg-gray-100
                     {{ isset($conversation) && $chat->id == $conversation->id ? 'bg-gray-200' : '' }}">
 
@@ -31,7 +52,7 @@
 
                  <!-- User Name -->
                  <h3 class="font-medium">
-                     {{ $otherUser->name }}
+                     {{ $title }}
                  </h3>
 
                  <!-- Latest Message -->
@@ -54,6 +75,14 @@
          </a>
 
          @endforeach
+
+         <a
+             href="{{ route('groups.create') }}"
+             class="block p-4 bg-green-500 text-white">
+
+             + New Group
+
+         </a>
 
      </div>
 

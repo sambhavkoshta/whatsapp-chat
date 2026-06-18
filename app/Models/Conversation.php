@@ -25,4 +25,19 @@ class Conversation extends Model
     {
         return $this->hasOne(Message::class)->latestOfMany();
     }
+
+    public function isPrivate(): bool
+    {
+        return $this->type === 'private';
+    }
+
+    public function isGroup(): bool
+    {
+        return $this->type === 'group';
+    }
+
+    public function creator()
+    {
+        return $this->belongsTo(User::class,'created_by');
+    }
 }

@@ -4,6 +4,7 @@ use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Chat\ChatController;
 use App\Http\Controllers\Chat\MessageController;
+use App\Http\Controllers\Chat\GroupController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -22,6 +23,12 @@ Route::middleware('auth')->group(function () {
     Route::get('/chat/{user}', [ChatController::class, 'show'])->name('chat.show');
 
     Route::post('/conversations/{conversation}/messages',[MessageController::class, 'store'])->name('messages.store');
+
+    Route::get('/groups/create',[GroupController::class, 'create'])->name('groups.create');
+
+    Route::post('/groups',[GroupController::class, 'store'])->name('groups.store');
+
+    Route::get('/conversations/{conversation}',[ChatController::class, 'showConversation'])->name('conversations.show');
 });
 
 require __DIR__.'/auth.php';

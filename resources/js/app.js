@@ -10,13 +10,13 @@ Alpine.start();
 let typingTimer;
 
 let onlineUsers = [];
+let activeTypers = [];
 
 const conversationId = document.getElementById("conversation-id");
 
 if (conversationId) {
     window.Echo.private(`conversation.${conversationId.value}`)
         .listen("MessageSent", (e) => {
-
             console.log("EVENT RECEIVED");
 
             const messagesDiv = document.getElementById("messages");
@@ -27,23 +27,33 @@ if (conversationId) {
             const isMine = e.user_id == currentUserId;
 
             const html = `
-        <div class="flex ${isMine ? "justify-end" : "justify-start"}">
+            <div class="flex ${isMine ? "justify-end" : "justify-start"}">
 
-            <div class="
-                max-w-sm px-4 py-2 rounded-lg shadow
-                ${isMine ? "bg-green-500 text-white" : "bg-white"}
-            ">
+                <div class="
+                    max-w-sm px-4 py-2 rounded-lg shadow
+                    ${isMine ? "bg-green-500 text-white" : "bg-white"}
+                ">
 
-                <p>${e.body}</p>
+                    ${
+                        !isMine
+                            ? `
+                        <div class="text-xs font-semibold text-green-600 mb-1">
+                            ${e.user_name}
+                        </div>
+                    `
+                            : ""
+                    }
 
-                <div class="text-xs mt-1 opacity-70">
-                    ${e.created_at}
+                    <p>${e.body}</p>
+
+                    <div class="text-xs mt-1 opacity-70">
+                        ${e.created_at}
+                    </div>
+
                 </div>
 
             </div>
-
-        </div>
-    `;
+            `;
 
             messagesDiv.insertAdjacentHTML("beforeend", html);
 
@@ -52,10 +62,20 @@ if (conversationId) {
         .listenForWhisper("typing", (e) => {
             const typingIndicator = document.getElementById("typing-indicator");
 
-            typingIndicator.innerText = `${e.name} is typing...`;
+            if (!activeTypers.includes(e.name)) {
+                activeTypers.push(e.name);
+            }
+
+            typingIndicator.innerText = activeTypers
+                .map((name) => `${name} is typing...`)
+                .join(" ");
 
             setTimeout(() => {
-                typingIndicator.innerText = "";
+                activeTypers = activeTypers.filter((name) => name !== e.name);
+
+                typingIndicator.innerText = activeTypers
+                    .map((name) => `${name} is typing...`)
+                    .join(" ");
             }, 1000);
         });
     
@@ -157,6 +177,7 @@ if (conversationId && messageInput) {
             window.Echo.private(`conversation.${conversationId.value}`).whisper(
                 "typing",
                 {
+                    id: document.getElementById("current-user-id").value,
                     name: document.getElementById("current-user-name").value,
                 },
             );

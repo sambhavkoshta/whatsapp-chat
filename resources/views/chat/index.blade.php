@@ -8,7 +8,7 @@
 
         <div class="flex-1">
 
-            @isset($selectedUser)
+            @isset($conversation)
 
             <input
                 type="hidden"
@@ -24,12 +24,13 @@
                 type="hidden"
                 id="current-user-name"
                 value="{{ auth()->user()->name }}">
-                
+
             <x-chat.header
-                :selected-user="$selectedUser" />
+                :conversation="$conversation" />
 
             <x-chat.messages
-                :messages="$messages" />
+                :messages="$messages"
+                :conversation="$conversation" />
 
             <x-chat.input
                 :conversation="$conversation" />

@@ -1,7 +1,7 @@
 @props([
-'messages'
+'messages',
+'conversation'
 ])
-
 <!-- Messages Area -->
 <div id="messages" class="h-[75vh] overflow-y-auto p-4 space-y-4 bg-gray-100">
 
@@ -16,6 +16,18 @@
                             : 'bg-white'
                         }}
                     ">
+            @if(
+            $conversation->isGroup()
+            && $message->user_id != auth()->id()
+            )
+
+            <div class="text-xs font-semibold text-green-600 mb-1">
+
+                {{ $message->user->name }}
+
+            </div>
+
+            @endif
 
             <p>
                 {{ $message->body }}

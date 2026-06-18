@@ -40,4 +40,24 @@ class ChatService
             ->orderByDesc('messages_max_created_at')
             ->get();
     }
+
+    public function createGroupConversation(
+        string $name,
+        array $userIds
+    ) {
+        $conversation = Conversation::create([
+            'name' => $name,
+            'type' => 'group',
+            'created_by' => auth()->id(),
+        ]);
+
+        $conversation->users()->attach(
+            array_unique([
+                auth()->id(),
+                ...$userIds
+            ])
+        );
+
+        return $conversation;
+    }
 }

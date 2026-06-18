@@ -16,7 +16,9 @@ class MessageSent implements ShouldBroadcastNow
 
     public function __construct(
         public Message $message
-    ) {}
+    ) {
+        $this->message->load('user');
+    }
 
     public function broadcastOn(): array
     {
@@ -35,6 +37,7 @@ class MessageSent implements ShouldBroadcastNow
             'user_id' => $this->message->user_id,
             'conversation_id' => $this->message->conversation_id,
             'created_at' => $this->message->created_at->format('h:i A'),
+            'user_name' => $this->message->user->name,
         ];
     }
 }
